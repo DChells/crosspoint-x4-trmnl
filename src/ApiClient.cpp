@@ -2,7 +2,9 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-#include "../open-x4-sdk/libs/hardware/BatteryMonitor/include/BatteryMonitor.h"
+#include "../lib/BatteryMonitor/include/BatteryMonitor.h"
+
+#include <algorithm>
 
 // Global battery monitor instance - initialized in main task (not yet implemented)
 // For now, return default values if not initialized
@@ -23,7 +25,7 @@ String ApiClient::buildApiUrl(const String& serverUrl) {
 String ApiClient::getBatteryVoltage() {
     if (g_batteryMonitor != nullptr) {
         double volts = g_batteryMonitor->readVolts();
-        return String(volts, 1);
+        return String(volts, 2);
     }
     return "0.0";
 }
@@ -70,7 +72,7 @@ DisplayFetchResult ApiClient::fetchDisplay(const TrmnlConfig& config) {
     int httpCode = http.GET();
     result.result.httpStatus = httpCode;
 
-    if (httpCode == HTTP_CODE_OK || httpCode == 202) {
+    if (httpCode == HTTP_CODE_OK) {
         String responseBody = http.getString();
 
         ApiResult parseResult = parseApiResponse(responseBody,
@@ -166,16 +168,22 @@ ApiResult ApiClient::parseApiResponse(const String& responseBody,
         return ApiResult(ApiError::JSON_PARSE_FAILED, errorMsg);
     }
 
-    if (doc["status"].is<int>()) {
-        int status = doc["status"].as<int>();
-        trmnlStatus = static_cast<TrmnlStatus>(status);
-
-        if (trmnlStatus == TrmnlStatus::NO_UPDATE) {
-            return ApiResult(ApiError::SUCCESS, "");
-        }
-    } else {
+    if (!doc["status"].is<int>()) {
         return ApiResult(ApiError::MISSING_REQUIRED_FIELD,
                           "Missing required field: status");
+    }
+
+    {
+        const int status = doc["status"].as<int>();
+        trmnlStatus = static_cast<TrmnlStatus>(status);
+        if (status == static_cast<int>(TrmnlStatus::NO_UPDATE)) {
+            return ApiResult(ApiError::SUCCESS, "");
+        }
+        if (status != static_cast<int>(TrmnlStatus::SUCCESS)) {
+            char msg[96];
+            snprintf(msg, sizeof(msg), "TRMNL status error: %d", status);
+            return ApiResult(ApiError::HTTP_REQUEST_FAILED, msg);
+        }
     }
 
     if (doc["image_url"].is<const char*>()) {
@@ -186,10 +194,12 @@ ApiResult ApiClient::parseApiResponse(const String& responseBody,
     }
 
     if (doc["refresh_rate"].is<const char*>()) {
-        refreshRate = doc["refresh_rate"].as<uint32_t>();
+        const char* rr = doc["refresh_rate"].as<const char*>();
+        refreshRate = String(rr ? rr : "").toInt();
     } else if (doc["refresh_rate"].is<int>()) {
-        refreshRate = doc["refresh_rate"].as<uint32_t>();
-    } else {
+        refreshRate = static_cast<uint32_t>(doc["refresh_rate"].as<int>());
+    }
+    if (refreshRate == 0) {
         refreshRate = 1800;
     }
 
@@ -221,7 +231,7 @@ ApiResult ApiClient::downloadImage(const String& imageUrl,
         if (contentLength <= 0) {
             http.end();
             return ApiResult(ApiError::IMAGE_DOWNLOAD_FAILED,
-                              "Content length not available");
+                               "Content length not available");
         }
 
         if ((size_t)contentLength > MAX_IMAGE_SIZE) {
@@ -236,12 +246,14 @@ ApiResult ApiClient::downloadImage(const String& imageUrl,
         size_t bytesRead = 0;
         unsigned long startTime = millis();
         while (http.connected() && (bytesRead < (size_t)contentLength) && (millis() - startTime < IMAGE_TIMEOUT_MS)) {
-            size_t available = stream->available();
-            if (available) {
-                int read = stream->read(imageData.data() + bytesRead, available);
-                if (read > 0) {
-                    bytesRead += read;
-                    startTime = millis(); // Reset timeout on successful read
+            const size_t available = static_cast<size_t>(stream->available());
+            if (available > 0) {
+                const size_t remaining = static_cast<size_t>(contentLength) - bytesRead;
+                const size_t toRead = std::min(available, remaining);
+                const int r = stream->read(imageData.data() + bytesRead, toRead);
+                if (r > 0) {
+                    bytesRead += static_cast<size_t>(r);
+                    startTime = millis();
                 }
             }
             delay(1);
