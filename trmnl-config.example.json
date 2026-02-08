@@ -1,0 +1,10 @@
+{
+  "wifi_ssid": "YOUR_WIFI_SSID",
+  "wifi_password": "YOUR_WIFI_PASSWORD",
+  "server_url": "https://usetrmnl.com",
+  "api_key": "YOUR_API_KEY",
+  "device_id": "",
+  "refresh_interval": 1800,
+  "use_insecure_tls": true,
+  "standalone_mode": false
+}

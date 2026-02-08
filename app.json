@@ -1,0 +1,8 @@
+{
+  "id": "trmnl-dashboard",
+  "name": "TRMNL Dashboard",
+  "version": "0.1.0",
+  "description": "TRMNL-compatible dashboard display for X4",
+  "author": "Community",
+  "minFirmware": "0.16.0"
+}
