@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#include "../lib/EInkDisplay/include/EInkDisplay.h"
+#include <EInkDisplay.h>
 
 namespace TextDraw {
 

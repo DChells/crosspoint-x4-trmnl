@@ -12,10 +12,10 @@
 #include "TextDraw.h"
 
 // SDK Libraries
-#include "../lib/EInkDisplay/include/EInkDisplay.h"
-#include "../lib/SDCardManager/include/SDCardManager.h"
-#include "../lib/InputManager/include/InputManager.h"
-#include "../lib/BatteryMonitor/include/BatteryMonitor.h"
+#include <EInkDisplay.h>
+#include <SDCardManager.h>
+#include <InputManager.h>
+#include <BatteryMonitor.h>
 
 // Global Objects
 // EPD_SCLK=8, EPD_MOSI=10, EPD_CS=21, EPD_DC=4, EPD_RST=5, EPD_BUSY=6

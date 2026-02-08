@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../lib/InputManager/include/InputManager.h"
+#include <InputManager.h>
 
 #include "ConfigLoader.h"
 

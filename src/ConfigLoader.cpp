@@ -1,5 +1,5 @@
 #include "ConfigLoader.h"
-#include "../lib/SDCardManager/include/SDCardManager.h"
+#include <SDCardManager.h>
 #include <WiFi.h>
 
 TrmnlConfig ConfigLoader::config;

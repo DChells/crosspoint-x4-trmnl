@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-#include "../lib/BatteryMonitor/include/BatteryMonitor.h"
+#include <BatteryMonitor.h>
 
 #include <algorithm>
 
