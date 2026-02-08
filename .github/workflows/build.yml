@@ -1,0 +1,67 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Run PlatformIO Build
+        run: pio run -e x4_dashboard
+
+      - name: Prepare Artifacts
+        run: |
+          cp .pio/build/x4_dashboard/firmware.bin app.bin
+          # CrossPoint recommended upload format: ZIP containing app.bin + app.json at ZIP root
+          # Naming: <appId>-<version>.zip (docs/apps.md)
+          VERSION="${GITHUB_REF_NAME#v}"
+          ZIP_NAME="trmnl-dashboard-${VERSION}.zip"
+          zip -j "${ZIP_NAME}" app.bin app.json
+          # Convenience alias
+          cp "${ZIP_NAME}" app.zip
+
+      - name: Upload app.bin
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-bin
+          path: app.bin
+
+      - name: Upload app.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-zip
+          path: app.zip
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app.bin
+            app.json
+            app.zip
+            trmnl-dashboard-*.zip
