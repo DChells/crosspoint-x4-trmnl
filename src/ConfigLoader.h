@@ -11,7 +11,7 @@
 struct TrmnlConfig {
     String wifiSsid;         ///< WiFi SSID (required)
     String wifiPassword;      ///< WiFi password (required)
-    String serverUrl;         ///< Server URL e.g. "https://usetrmnl.com" (required)
+    String serverUrl;         ///< Server URL e.g. "https://trmnl.app" (required)
     String apiKey;            ///< TRMNL API key (required)
     String deviceId;          ///< Custom device ID (optional, empty = use WiFi MAC)
     uint32_t refreshInterval; ///< Seconds between refreshes (default 1800)
