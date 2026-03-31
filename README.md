@@ -91,7 +91,7 @@ Copy `trmnl-config.example.json` to your SD card root as `/trmnl-config.json` an
 {
   "wifi_ssid": "YOUR_WIFI_SSID",
   "wifi_password": "YOUR_WIFI_PASSWORD",
-  "server_url": "https://usetrmnl.com",
+  "server_url": "https://trmnl.app",
   "api_key": "YOUR_API_KEY",
   "device_id": "",
   "refresh_interval": 1800,
@@ -104,7 +104,7 @@ Copy `trmnl-config.example.json` to your SD card root as `/trmnl-config.json` an
 
 - **wifi_ssid** (required): Your WiFi network name
 - **wifi_password** (required): Your WiFi password
-- **server_url** (required): TRMNL server URL (`https://usetrmnl.com` for official)
+- **server_url** (required): TRMNL server URL (`https://trmnl.app` for official)
 - **api_key** (required): Your TRMNL API key
 - **device_id** (optional): Custom device ID. Leave empty to use WiFi MAC address
 - **refresh_interval** (optional): Seconds between updates (default: 1800 = 30 minutes)
@@ -115,16 +115,16 @@ Copy `trmnl-config.example.json` to your SD card root as `/trmnl-config.json` an
 
 ### Official TRMNL Server
 
-1. Create an account at [usetrmnl.com](https://usetrmnl.com)
+1. Create an account at [trmnl.com](https://trmnl.com)
 2. Register your device in the dashboard
 3. Copy the API key to your config file
 
 ### Self-Hosted (BYOS)
 
-1. Set up a BYOS server ([byos_laravel](https://github.com/usetrmnl/byos_laravel) recommended):
+1. Set up a BYOS server ([LaraPaper](https://github.com/usetrmnl/larapaper) recommended):
    ```bash
-   git clone https://github.com/usetrmnl/byos_laravel
-   cd byos_laravel
+   git clone https://github.com/usetrmnl/larapaper
+   cd larapaper
    docker compose -f docker-compose.yml up -d
    ```
 
